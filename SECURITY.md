@@ -1,12 +1,21 @@
-# Security Notes
+# Security and Privacy
 
-This project uses configuration values for external services. Keep all credentials outside source control.
+This project is a personal integration and should only be deployed against systems you own or are explicitly authorised to control.
 
-Never commit:
+## Never commit
+
 - Kodi usernames or passwords
-- cloud access keys or secret keys
 - Alexa skill secrets or application credentials
-- private certificates or private keys
-- personal addresses, hostnames or public tunnel credentials
+- AWS access keys or deployment secrets
+- private IP addresses or internal DNS names
+- certificates or private keys
+- private network configuration
+- personal media-library data
+
+## Configuration
 
 Use environment variables or a local `.env` file that is excluded from Git. The checked-in environment template intentionally contains blank values.
+
+## Before publishing changes
+
+Review source, configuration, documentation and screenshots for private endpoints, credentials and personal information. Never paste private configuration into a public issue or pull request.
