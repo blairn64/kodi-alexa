@@ -1,34 +1,33 @@
-#!/bin/python
+#!/usr/bin/env python3
+"""Package the Lambda-specific files and run the legacy deployment command."""
 
-# By default lambda-deploy will package the entire folder it is run from and
-# upload it to AWS. To keep things a little neater you can run this script to
-# copy the Lambda relevant files to a seperate folder then deploy from the new 
-# folder.
-# 
-# Usage: `python deploy-to-lambda.py`
-
-import subprocess
-import os
+from pathlib import Path
 import shutil
+import subprocess
 
-app_name = "kodi-alexa"
+APP_NAME = "kodi-alexa"
+ROOT = Path.cwd()
+TARGET = ROOT / APP_NAME
 
-if(os.path.isdir(app_name)):
-  shutil.rmtree(app_name, ignore_errors=True)
+if TARGET.is_dir():
+    shutil.rmtree(TARGET)
 
-os.mkdir(app_name)
+TARGET.mkdir()
 
-if(os.path.isfile(".env")):
-  shutil.copy(".env", app_name)
+for filename in (".env", "kodi.py", "wsgi.py", "requirements.txt"):
+    source = ROOT / filename
+    if source.is_file():
+        shutil.copy2(source, TARGET / filename)
 
-if(os.path.isfile("kodi.py")):
-  shutil.copy("kodi.py", app_name)
+result = subprocess.run(
+    ["lambda-deploy", "deploy"],
+    cwd=TARGET,
+    check=False,
+    text=True,
+    capture_output=True,
+)
 
-if(os.path.isfile("wsgi.py")):
-  shutil.copy("wsgi.py", app_name)
-
-if(os.path.isfile("requirements.txt")):
-  shutil.copy("requirements.txt", app_name)
-
-os.chdir(app_name)
-print subprocess.Popen("lambda-deploy deploy", shell=True, stdout=subprocess.PIPE).stdout.read()  
+print(result.stdout, end="")
+if result.stderr:
+    print(result.stderr, end="")
+raise SystemExit(result.returncode)
