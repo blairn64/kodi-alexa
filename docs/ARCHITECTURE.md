@@ -2,48 +2,47 @@
 
 ## Overview
 
-The application bridges voice intents from Amazon Alexa to Kodi's JSON-RPC API.
+The project bridges voice intents from Amazon Alexa to a Kodi media system through Kodi's JSON-RPC interface.
 
 ```text
 Alexa skill
     |
     v
-Python web/handler layer
+Python application / handler
     |
-    +---- AWS Lambda deployment option
+    +---- AWS Lambda deployment
     |
-    +---- WSGI/Gunicorn deployment option
+    +---- WSGI / Gunicorn deployment
     |
-    +---- Docker deployment option
+    +---- Docker deployment
     |
     v
 Kodi JSON-RPC API
     |
     v
-Media library / playback system
+Media library and playback
 ```
 
 ## Components
 
-### Python application
+- `kodi.py` contains the core command and Kodi API integration logic.
+- `wsgi.py` supplies the web/WSGI entry point.
+- `deploy-to-lambda.py` packages the Lambda deployment set.
+- `generate_custom_slots.py` generates Alexa custom-slot data.
+- `alexa.intents` and `alexa.utterances` define the interaction model.
+- `Dockerfile` and `gunicorn.conf` describe alternative application runtimes.
 
-`kodi.py` contains the core command and Kodi API integration logic.
+## Configuration
 
-### Alexa definitions
-
-`alexa.intents` and `alexa.utterances` define the voice interaction model. `generate_custom_slots.py` automates generation of custom slot data.
-
-### Deployment
-
-The project includes multiple deployment paths: AWS Lambda, a WSGI/Gunicorn service, and Docker. `deploy-to-lambda.py` supports the Lambda workflow.
-
-### Configuration
-
-Runtime settings are supplied through environment variables rather than source-controlled credentials. The repository's environment files are templates only.
+Runtime settings are injected through environment variables. The repository's environment files are templates and should never contain real secrets, private endpoints or access credentials.
 
 ## Engineering concerns
 
 - Keep Kodi endpoints and credentials out of source control.
-- Use HTTPS/reverse-proxy protection where appropriate for exposed deployments.
-- Treat the Lambda deployment as an adapter around the application rather than mixing deployment secrets into application code.
-- Keep logging useful but avoid recording credentials or private media-library information.
+- Use a protected reverse proxy and HTTPS when exposing the service beyond a trusted local network.
+- Keep deployment credentials in AWS roles, CI/CD secrets or another approved secret store.
+- Keep logging useful without recording credentials or private media-library information.
+
+## Historical context
+
+This is a personal integration project that demonstrates API integration, voice intent handling, cloud deployment and container/WSGI packaging. It is not presented as a current commercial service.
